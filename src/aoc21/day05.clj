@@ -5,19 +5,6 @@
 (def f "day-05-input.txt")
 (def data (slurp (io/resource f)))
 
-;; (def data
-;;   "0,9 -> 5,9
-;; 8,0 -> 0,8
-;; 9,4 -> 3,4
-;; 2,2 -> 2,1
-;; 7,0 -> 7,4
-;; 6,4 -> 2,0
-;; 0,9 -> 2,9
-;; 3,4 -> 1,4
-;; 0,0 -> 8,8
-;; 5,5 -> 8,2")
-
-
 (defn parse-line [s]
   (let [[_ x1 y1 x2 y2] (re-matches #"(\d+),(\d+) -> (\d+),(\d+)" s)]
     {:x1 (read-string x1) :y1 (read-string y1)
