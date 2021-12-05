@@ -1,6 +1,6 @@
 (ns aoc21.day04
-  (:require [clojure.java.io :as io]
-            [clojure.string :as string]))
+  n(:require [clojure.java.io :as io]
+             [clojure.string :as string]))
 
 (def f "day-04-input.txt")
 (def data (slurp (io/resource f)))
@@ -33,7 +33,8 @@
   (apply min (map #(apply max %) mb)))
 
 (defn winning-draw-rows-and-cols [b]
-  (min (winning-draw b) (winning-draw (transpose b))))
+  (min (winning-draw b)
+       (winning-draw (transpose b))))
 
 (defn score-board [{:keys [board marked winning-draw]}]
   (let [lin-board        (flatten board)
@@ -63,5 +64,6 @@
 (defn get-day04-answer-pt1 [s]
   (score-board (first (get-ordered-boards s))))
 
+;;23670
 (defn get-day04-answer-pt2 [s]
   (score-board (last (get-ordered-boards s))))
