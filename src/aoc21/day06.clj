@@ -21,8 +21,7 @@
 
 (defn simulate-day [state]
   (let [lays (first state)]
-    (-> (rest state)
-        vec
+    (-> (vec (rest state))
         (conj 0)
         (update post-lay + lays)
         (update post-birth + lays))))

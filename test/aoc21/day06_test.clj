@@ -4,7 +4,7 @@
 
 (def test-string "3,4,3,1,2")
 
-(deftest get-day06-answer
+(deftest get-day06-answer-test
   (testing "Testing day 06"
     (is (= 26 (sut/get-day06-answer test-string 18)))
     (is (= 5934 (sut/get-day06-answer test-string 80)))
