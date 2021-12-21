@@ -1,6 +1,6 @@
 (ns aoc21.day04
-  n(:require [clojure.java.io :as io]
-             [clojure.string :as string]))
+  (:require [clojure.java.io :as io]
+            [clojure.string :as string]))
 
 (def f "day-04-input.txt")
 (def data (slurp (io/resource f)))
