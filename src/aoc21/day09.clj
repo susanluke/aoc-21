@@ -68,6 +68,4 @@
          (map count)
          (sort >)
          (take 3)
-         (apply *))
-
-    ))
+         (apply *))))
