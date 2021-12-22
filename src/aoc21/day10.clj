@@ -13,6 +13,12 @@
 (def bracket-closer-scores
   {\( 1 \[ 2 \{ 3 \< 4})
 
+(defn digits->closer-score [ds] (reduce #(+ (* 5 %) %2) ds))
+
+(defn median [l]
+  (nth (sort l)
+       (int (/ (count l) 2))))
+
 (defn syntax-error-score
   ([s] (syntax-error-score '() s))
   ([openers s]
@@ -30,12 +36,6 @@
 
          :else
          {:score (bracket-syntax-scores next-char)})))))
-
-(defn digits->closer-score [ds] (reduce #(+ (* 5 %) %2) ds))
-
-(defn median [l]
-  (nth (sort l)
-       (int (/ (count l) 2))))
 
 (defn day10-answer-pt1 [s]
   (->> (parse-raw-data s)

@@ -22,3 +22,8 @@
   (testing "Test day 09 pt 1"
     (is (= 26397 (sut/day10-answer-pt1 test-raw-data)))
     (is (= 362271 (sut/day10-answer-pt1 raw-data)))))
+
+(deftest get-day08-answer-pt2-test
+  (testing "Test day 09 pt 1"
+    (is (= 288957 (sut/day10-answer-pt2 test-raw-data)))
+    (is (= 1698395182 (sut/day10-answer-pt2 raw-data)))))
