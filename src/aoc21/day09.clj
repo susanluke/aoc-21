@@ -37,3 +37,37 @@
                y (range dim-y)]
            (score data dims [x y]))
          (apply +))))
+
+(defn basin-search [data dims state coords]
+  (if (or (= 9 (get-xy data coords))
+          ((:searched state) coords))
+    state
+    (reduce (partial basin-search data dims)
+            (-> state
+                (update :searched conj coords)
+                (update :current-basin conj coords))
+            (neighbours dims coords))))
+
+(defn basin-search-top-level [data dims state coords]
+  (let [new-state (basin-search data dims state coords)]
+    (-> new-state
+        (update :basins conj (:current-basin new-state))
+        (assoc :current-basin #{}))))
+
+(defn day09-answer-pt2 [s]
+  (let [data (parse-raw-data s)
+        [dim-x dim-y :as dims] [(count (first data)) (count data)]
+        basin-data (reduce (partial basin-search-top-level data dims)
+                           {:searched #{}
+                            :basins '()
+                            :current-basin #{}}
+                           (for [x (range dim-x)
+                                 y (range dim-y)]
+                             [x y]))]
+    (->> (:basins basin-data)
+         (map count)
+         (sort >)
+         (take 3)
+         (apply *))
+
+    ))
