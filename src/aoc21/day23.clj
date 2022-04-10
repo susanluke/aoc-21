@@ -1,14 +1,6 @@
 (ns aoc21.day23)
 
-(comment
-  "
-#############
-#...........#
-###B#C#B#D###
-  #A#D#C#A#
-  #########
-"
-  )
+
 
 ;; TODO: sort out all these variables so they can be passed around
 
@@ -18,14 +10,18 @@
 (def corridor-row 1)
 (def corridor-rest-cols [1 2 4 6 8 10 11])
 
+(def grid-info {:move-costs         {:a 1 :b 10 :c 100 :d 1000}
+                :home-rows          [2 3]
+                :home-cols          {:a 3 :b 5 :c 7 :d 9}
+                :corridor-row       1
+                :corridor-rest-cols [1 2 4 6 8 10 11]})
+
 ;; TODO: do we need a record to represent each amphipod?
 
 ;; TODO: Think about whether we should separately keep an list of each amphipod
 ;; locations.  I don't think we need to as it's pretty easy to scan through and
 ;; find amphis.
 
-;; TODO: I dont't think we need to track sat-in-corridor, as algo would never
-;; choose to go into corridor twice
 
 ;; TODO: what is the point of these rows with 13 nils? I
 ;; don't think we need them.
@@ -44,9 +40,9 @@
 (defn abs [n] (max n (- n)))
 
 (defn get-row-col [m [r c]]
-  (-> (nth m r) (nth c)))
+(-> (nth m r) (nth c)))
 
-(defn all-behind-of-type? [state amphi-type [r c]]
+(defn all-behind-of-type? [state {:keys [home-rows]} amphi-type [r c]]
   (every? #(= amphi-type
               (get-row-col state [% c]))
           (range (inc r) (inc (apply max home-rows)))))
@@ -68,7 +64,8 @@
       (if (all-behind-of-type? state amphi-type location)
         ;; Anything beneath this of the right type, so don't need to move
         0
-        ;; Need to move out into corridor, +2 to get to rest location and back again
+        ;; Need to move out into corridor, +2 to get to rest location and back
+        ;; again
         (+ (- r corridor-row) 2))
       ;; Need to get out, across the corridor (leave cost of descending into home
       ;; row)
@@ -76,9 +73,9 @@
          (abs (- home-col c))))))
 
 (defn get-all-grid-locations []
-  (for [r (range grid-num-rows)
-        c (range grid-num-cols)]
-    [r c]))
+(for [r (range grid-num-rows)
+      c (range grid-num-cols)]
+  [r c]))
 
 (defn find-amphipod-locations [state amphi-type]
   (->> (get-all-grid-locations)
