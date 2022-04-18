@@ -72,20 +72,20 @@
       (+ (- r corridor-row)
          (abs (- home-col c))))))
 
-(defn get-all-grid-locations []
-(for [r (range grid-num-rows)
-      c (range grid-num-cols)]
-  [r c]))
+(defn get-all-grid-locations [{:keys [num-rows num-cols] :as grid-info}]
+  (for [r (range num-rows)
+        c (range num-cols)]
+    [r c]))
 
-(defn find-amphipod-locations [state amphi-type]
-  (->> (get-all-grid-locations)
+(defn find-amphipod-locations [state grid-info amphi-type]
+  (->> (get-all-grid-locations grid-info)
        (map #(if (= (get-row-col state %)
                     amphi-type)
                %
                nil))
        (remove nil?)))
 
-(defn home-locations [amphi-type]
+(defn home-locations [{:keys [home-rows home-cols] :as grid-info} amphi-type]
   (map vector home-rows (repeat (home-cols amphi-type))))
 
 (defn num-move-in-corridor [state amphi-type]
