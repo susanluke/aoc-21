@@ -1,9 +1,7 @@
 (ns aoc21.day23)
 
-
-
 ;; TODO: sort out all these variables so they can be passed around
-
+;; TODO: delete one grid-info is passed around everywhere
 (def move-costs {:a 1 :b 10 :c 100 :d 1000})
 (def home-cols {:a 3 :b 5 :c 7 :d 9})
 (def home-rows [2 3])
@@ -16,33 +14,16 @@
                 :corridor-row       1
                 :corridor-rest-cols [1 2 4 6 8 10 11]})
 
-;; TODO: do we need a record to represent each amphipod?
-
-;; TODO: Think about whether we should separately keep an list of each amphipod
-;; locations.  I don't think we need to as it's pretty easy to scan through and
-;; find amphis.
-
-
-;; TODO: what is the point of these rows with 13 nils? I
-;; don't think we need them.
-
-
-(def initial-state
-  [(repeat 13 nil)
-   (repeat 13 nil)
-   [nil nil nil :b nil :c nil :b nil :d nil nil nil]
-   [nil nil nil :a nil :d nil :c nil :a nil nil nil]
-   (repeat 13 nil)])
-
-(def grid-num-rows (count initial-state))
-(def grid-num-cols (count (first initial-state)))
+;;(def grid-num-rows (count initial-state))
+;;(def grid-num-cols (count (first initial-state)))
 
 (defn abs [n] (max n (- n)))
 
 (defn get-row-col [m [r c]]
-(-> (nth m r) (nth c)))
+  (-> (nth m r) (nth c)))
 
-(defn all-behind-of-type? [state {:keys [home-rows]} amphi-type [r c]]
+;; TODO: should amphi-type be passed in?  we can infer it.
+(defn all-behind-of-type? [state {:keys [home-rows] :as grid-info} amphi-type [r c]]
   (every? #(= amphi-type
               (get-row-col state [% c]))
           (range (inc r) (inc (apply max home-rows)))))
@@ -57,11 +38,11 @@
 ;;
 ;; Journey down home-col can be calculated separately, taking into account that
 ;; each AP needs to descend a different distance.
-(defn dist-to-get-amphipod-top-of-home-col [state amphi-type [r c :as location]]
+(defn dist-to-get-amphipod-top-of-home-col [state {:keys [home-cols corridor-row] :as grid-info} amphi-type [r c :as location]]
   (let [home-col (home-cols amphi-type)]
     (if (= c home-col)
       ;; Already in home col, now check whether all beneath are the same type
-      (if (all-behind-of-type? state amphi-type location)
+      (if (all-behind-of-type? state grid-info amphi-type location)
         ;; Anything beneath this of the right type, so don't need to move
         0
         ;; Need to move out into corridor, +2 to get to rest location and back
@@ -88,29 +69,29 @@
 (defn home-locations [{:keys [home-rows home-cols] :as grid-info} amphi-type]
   (map vector home-rows (repeat (home-cols amphi-type))))
 
-(defn num-move-in-corridor [state amphi-type]
+(defn num-move-in-corridor [state {:keys [home-rows home-cols] :as grid-info} amphi-type]
   (let [home-col     (home-cols amphi-type)
-        ;; TODO switch to threading macro
-        num-stay-put (-> (take-while #(= % amphi-type)
-                                     (map (partial get-row-col state)
-                                          (reverse (home-locations amphi-type))))
-                         count)]
+        num-stay-put (->> (home-locations grid-info amphi-type)
+                          reverse
+                          (map (partial get-row-col state))
+                          (take-while #(= % amphi-type))
+                          count)]
     (- (count home-rows) num-stay-put)))
 
-(defn dist-to-get-amphipods-home [state amphi-type]
-  (let [num-move-in (num-move-in-corridor state amphi-type)
+(defn dist-to-get-amphipods-home [state grid-info amphi-type]
+  (let [num-move-in (num-move-in-corridor state grid-info amphi-type)
         dist-to-move-in-home-row (apply + (range 1 (inc num-move-in)))]
-    (->> (find-amphipod-locations state amphi-type)
-         (map (partial dist-to-get-amphipod-top-of-home-col state amphi-type))
+    (->> (find-amphipod-locations state grid-info amphi-type)
+         (map (partial dist-to-get-amphipod-top-of-home-col state grid-info amphi-type))
          (apply +)
          (+ dist-to-move-in-home-row))))
 
-(defn cost-to-get-amphipods-home [state amphi-type]
-  (* (amphi-type move-costs)
-     (dist-to-get-amphipods-home state amphi-type)))
+(defn cost-to-get-amphipods-home [state grid-info amphi-type]
+  (* (amphi-type (:move-costs grid-info))
+     (dist-to-get-amphipods-home state grid-info amphi-type)))
 
-(defn cost-to-get-all-amphipods-home [state]
-  (apply + (map (partial cost-to-get-amphipods-home initial-state)
+(defn cost-to-get-all-amphipods-home [state grid-info]
+  (apply + (map (partial cost-to-get-amphipods-home state grid-info)
                 '(:a :b :c :d))))
 
 ;; TODO a bit confusing, should we pass in colum, rather than amphi-type
@@ -153,5 +134,7 @@ at costs for next states and choose the lowest?
 How do we know if we're at a deadend? If no more moves possible?
 
 Check if we're at final state?
+
+NB: Have we thought about costs when amphipod is waiting in the corridor?
 
 ")
